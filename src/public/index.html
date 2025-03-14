@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rust WebSocket Chat</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f4f4f4;
+    }
+    .chat-container {
+        width: 300px;
+        padding: 20px;
+        background: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    #messages {
+        height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        padding: 10px;
+        background: #fafafa;
+    }
+    input, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+    }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Rust WebSocket Chat</h2>
+        <div id="messages"></div>
+        <input type="text" id="username-input" placeholder="Enter your username...">
+        <input type="text" id="message-input" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <script>
+    const ws = new WebSocket("ws://127.0.0.1:3030/ws");
+
+    // Recebe mensagens e exibe no chat
+    ws.onmessage = function(event) {
+        let messages = document.getElementById("messages");
+        let messageData = JSON.parse(event.data);
+        let message = document.createElement("div");
+        message.textContent = `${messageData.username}: ${messageData.message}`;
+        messages.appendChild(message);
+    };
+
+    // Envia uma mensagem em formato JSON
+    function sendMessage() {
+        let username = document.getElementById("username-input").value;
+        let message = document.getElementById("message-input").value;
+
+        if (username && message) {
+            let chatMessage = {
+                username: username,
+                message: message
+            };
+            ws.send(JSON.stringify(chatMessage));
+            document.getElementById("message-input").value = "";
+        }
+    }
+    </script>
+</body>
+</html>
